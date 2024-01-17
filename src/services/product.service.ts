@@ -13,4 +13,19 @@ Promise<ServiceResponse<Product>> => {
   return serviceResponse;
 };
 
-export default { createProduct };
+const listProducts = async (): Promise<ServiceResponse<Product[]>> => {
+  try {
+    const products = await ProductModel.findAll();
+    const serviceResponse = {
+      status: 'SUCCESSFUL',
+      data: products.map((product) => product.toJSON() as Product),
+    };
+
+    return serviceResponse;
+  } catch (error) {
+    console.error('Error listing products:', error);
+    throw new Error('Error listing products');
+  }
+};
+
+export default { createProduct, listProducts };

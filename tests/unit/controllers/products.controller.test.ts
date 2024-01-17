@@ -74,5 +74,50 @@ describe('Product Controller', () => {
       expect(createProductStub).to.have.been.calledOnce;
       createProductStub.restore();
     });
+    it('should list all products successfully', async () => {
+      const req: Request = {} as Request;
+      const res: Response = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub(),
+      } as unknown as Response;
+
+      const listProductsStub = sinon.stub(productService, 'listProducts').resolves({
+        status: 'SUCCESSFUL',
+        data: [
+          {
+            id: 1,
+            name: 'Excalibur',
+            price: '10 peças de ouro',
+            orderId: 1,
+          },
+          {
+            id: 2,
+            name: 'Espada Justiceira',
+            price: '20 peças de ouro',
+            orderId: 1,
+          },
+        ],
+      });
+
+      await productController.listProducts(req, res);
+
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.json).to.have.been.calledWith([
+        {
+          id: 1,
+          name: 'Excalibur',
+          price: '10 peças de ouro',
+          orderId: 1,
+        },
+        {
+          id: 2,
+          name: 'Espada Justiceira',
+          price: '20 peças de ouro',
+          orderId: 1,
+        },
+      ]);
+
+      expect(listProductsStub).to.have.been.calledOnce;
+    });
   });
 });

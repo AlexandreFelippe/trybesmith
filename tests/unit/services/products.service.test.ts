@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Model } from 'sequelize';
 import ProductModel from '../../../src/database/models/product.model';
 import ProductService from '../../../src/services/product.service';
 import productsMock from '../../mocks/products.mock';
@@ -15,11 +14,16 @@ describe('ProductsService', function () {
     expect(product.status).to.be.equal('SUCCESSFUL');
     expect(product.data).to.be.deep.equal(productsMock.validProduct);
   });
-  // it('Criando um produto com erro', async function () {
-  //   const mockNoCreate = ProductModel.build(productsMock.invalidProduct);
-  //   sinon.stub(ProductModel, 'create').resolves(mockNoCreate);
-  //   const product = await ProductService.createProduct(productsMock.invalidProduct);
-  //   expect(product).to.be.an('object');
-  //   expect(product.status).to.be.equal('ERROR');
-  // });
+  it('should handle errors during product listing', async () => {
+    const findAllStub = sinon.stub(ProductModel, 'findAll').rejects(new Error('Some error'));
+
+    try {
+      await ProductService.listProducts();
+    } catch (error: any) {
+      expect(error.message).to.equal('Error listing products');
+    }
+
+    findAllStub.restore();
+    expect(findAllStub).to.have.been.calledOnce;
+  });
 });
